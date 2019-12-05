@@ -1,6 +1,6 @@
 <?php 
 session_start();
-$connect = mysqli_connect("localhost", "root", "", "ebiz");
+$connect = mysqli_connect("www.db4free.net", "ebizness", "ebizness", "ebizness");
 
 if(isset($_POST["add_to_cart"]))
 {
