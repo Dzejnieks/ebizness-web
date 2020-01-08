@@ -1,8 +1,16 @@
 <?php 
 session_start();
-//$connect = mysqli_connect("localhost", "root", "", "ebiz");
+$connect = mysqli_connect("localhost", "root", "", "ebiz");
 $apiFile = file_get_contents("https://ebiznessvia.000webhostapp.com/api/shop/read.php");
 $json = json_decode($apiFile,true);
+for($x=0; $x<count($json["records"]);$x++){
+	$singleEntry = $json["records"][$x];
+	echo($singleEntry["id"]);
+	echo($singleEntry["name"]);
+	echo($singleEntry["image"]);
+	echo($singleEntry["price"]);
+}
+
 
 if(isset($_POST["add_to_cart"]))
 {
@@ -46,6 +54,7 @@ if(isset($_GET["action"]))
 			if($values["item_id"] == $_GET["id"])
 			{
 				unset($_SESSION["shopping_cart"][$keys]);
+				echo '<script>alert("Item Removed")</script>';
 				echo '<script>window.location="index.php"</script>';
 			}
 		}
@@ -65,23 +74,27 @@ if(isset($_GET["action"]))
 		<br />
 		<div class="container">
 			<?php
-				for($x=0; $x<count($json["records"]);$x++){
-					$singleEntry = $json["records"][$x];
+				$query = "SELECT * FROM tbl_product ORDER BY id ASC";
+				$result = mysqli_query($connect, $query);
+				if(mysqli_num_rows($result) > 0)
+				{
+					while($row = mysqli_fetch_array($result))
+					{
 				?>
 			<div class="col-md-4">
-				<form method="post" action="index.php?action=add&id=<?php echo $singleEntry["id"]; ?>">
+				<form method="post" action="index.php?action=add&id=<?php echo $row["id"]; ?>">
 					<div style="border:1px solid #333; background-color:#f1f1f1; border-radius:5px; padding:16px;" align="center">
-						<img src="<?php echo $singleEntry["image"]; ?>" class="img-responsive" /><br />
+						<img src="<?php echo $row["image"]; ?>" class="img-responsive" /><br />
 
-						<h4 class="text-info"><?php echo $singleEntry["name"]; ?></h4>
+						<h4 class="text-info"><?php echo $row["name"]; ?></h4>
 
-						<h4 class="text-danger">$ <?php echo $singleEntry["price"]; ?></h4>
+						<h4 class="text-danger">$ <?php echo $row["price"]; ?></h4>
 
 						<input type="text" name="quantity" value="1" class="form-control" />
 
-						<input type="hidden" name="hidden_name" value="<?php echo $singleEntry["name"]; ?>" />
+						<input type="hidden" name="hidden_name" value="<?php echo $row["name"]; ?>" />
 
-						<input type="hidden" name="hidden_price" value="<?php echo $singleEntry["price"]; ?>" />
+						<input type="hidden" name="hidden_price" value="<?php echo $row["price"]; ?>" />
 
 						<input type="submit" name="add_to_cart" style="margin-top:5px;" class="btn btn-success" value="Add to Cart" />
 
@@ -89,6 +102,7 @@ if(isset($_GET["action"]))
 				</form>
 			</div>
 			<?php
+					}
 				}
 			?>
 			<div style="clear:both"></div>
